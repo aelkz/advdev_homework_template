@@ -239,13 +239,15 @@ podTemplate(
               replicas = openshift.selector("dc/${destApp}").object().spec.replicas
               echo "current ${destApp} replicas is ${replicas}"
 
-              // Control dc active replicas
+              // Control dc active replicas for destApp
               if (replicas == 0) {
                 // start dc with 1 replica
                 echo "Scaling inactive ${destApp} application with 1 replicas"
                 openshift.selector("dc", "${destApp}").scale("--replicas=1");
                 sleep 10
               }
+
+              // TODO - Control dc active replicas for currentApp
 
               openshift.selector("dc", "${destApp}").rollout().latest();
 
