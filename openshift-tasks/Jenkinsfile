@@ -237,6 +237,7 @@ podTemplate(
               echo "Deploying inactive ${destApp} application"
 
               replicas = openshift.selector("dc/${destApp}").object().spec.replicas
+              echo "current ${destApp} replicas is ${replicas}"
 
               // Control dc active replicas
               if (replicas == "0") {
