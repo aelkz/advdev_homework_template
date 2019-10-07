@@ -194,21 +194,27 @@ podTemplate(
       def destApp = "tasks-green"
 
       stage('Blue/Green Production Deployment') {
-        // TBD: Determine which application is active
-        //      Set Image, Set VERSION
-        //      Deploy into the other application
-        //      Make sure the application is running and ready before proceeding
+        /* TBD:
+        1. Determine which application is active
+        2. Set Image, Set VERSION
+        3. Deploy into the other application
+        4. Make sure the application is running and ready before proceeding
+        */
 
         echo "Blue/Green Deployment"
         script {
           openshift.withCluster() {
             openshift.withProject("${prodProject}") {
               currentApp = openshift.selector("route", "tasks").object().spec.to.name
+
               if (currentApp == "tasks-green") {
                 destApp = "tasks-blue"
               }
+
+              echo "************************************************************"
               echo "Active Application:      " + currentApp
               echo "Destination Application: " + destApp
+              echo "************************************************************"
 
               // Update the Image on the Production Deployment Config
               def dc = openshift.selector("dc/${destApp}").object()
@@ -228,13 +234,16 @@ podTemplate(
               sh "oc set env dc/${destApp} VERSION='${prodTag} ${destApp}' -n ${prodProject}"
 
               // Deploy the inactive application.
+              echo "Deploying inactive ${destApp} application"
               openshift.selector("dc", "${destApp}").rollout().latest();
 
               // Wait for application to be deployed
               def dc_prod = openshift.selector("dc", "${destApp}").object()
               def dc_version = dc_prod.status.latestVersion
               def rc_prod = openshift.selector("rc", "${destApp}-${dc_version}").object()
+
               echo "Waiting for ${destApp} to be ready"
+
               while (rc_prod.spec.replicas != rc_prod.status.readyReplicas) {
                 sleep 5
                 rc_prod = openshift.selector("rc", "${destApp}-${dc_version}").object()
@@ -255,11 +264,11 @@ podTemplate(
               def route = openshift.selector("route/tasks").object()
               route.spec.to.name="${destApp}"
               openshift.apply(route)
-
             }
           }
         }
       }
+      
     }
   }
 }

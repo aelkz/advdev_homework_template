@@ -71,7 +71,7 @@ GUID: fee6
 USER: {your-email-goes-here}
 REPO: https://github.com/{your-github-user}/advdev_homework_template.git
 SETUP: unchecked
-DELETE: checked
+DELETE: unchecked (problem when trying to find cleanup.sh script)
 
 OBS. Where `fee6` is your GUID
 
