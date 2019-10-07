@@ -235,6 +235,15 @@ podTemplate(
 
               // Deploy the inactive application.
               echo "Deploying inactive ${destApp} application"
+
+              replicas = openshift.selector("dc/${destApp}").object().spec.replicas
+
+              //TODO - control dc active replicas
+              if (replicas == "0") {
+                // start dc with 1 replica
+                openshift.selector("dc", "${destApp}").scale("--replicas=1");
+              }
+
               openshift.selector("dc", "${destApp}").rollout().latest();
 
               // Wait for application to be deployed
@@ -268,7 +277,7 @@ podTemplate(
           }
         }
       }
-      
+
     }
   }
 }
